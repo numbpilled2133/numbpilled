@@ -1,0 +1,26 @@
+name: update profile readme
+
+on:
+  schedule:
+    - cron: '0 */8 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: numbpilled2133/numbpilled2133
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: python generate-profile.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          git config user.name "numbpilled bot"
+          git config user.email "bot@numbpilled.bsky.social"
+          git add -A
+          git diff --staged --quiet || git commit -m "auto: profile update"
+          git push
